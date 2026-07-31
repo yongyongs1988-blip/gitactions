@@ -27,8 +27,16 @@ jobs:
             set -e
             cd ~/gitactions
             git pull --ff-only
-            docker compose -f docker-compose.local.yml down
-            docker compose -f docker-compose.local.yml up -d --build backend
+            if docker compose version >/dev/null 2>&1; then
+              docker compose -f docker-compose.local.yml down
+              docker compose -f docker-compose.local.yml up -d --build backend
+            elif command -v docker-compose >/dev/null 2>&1; then
+              docker-compose -f docker-compose.local.yml down
+              docker-compose -f docker-compose.local.yml up -d --build backend
+            else
+              echo "Docker Compose is not installed on the private server." >&2
+              exit 127
+            fi
             REMOTE
   deploy-frontend:
     runs-on: ubuntu-latest
