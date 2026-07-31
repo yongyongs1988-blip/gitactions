@@ -11,7 +11,7 @@ jobs:
         with:
           host: ${{ secrets.PUBLIC_HOST }}
           username: ${{ secrets.SSH_USER }}
-          key: ${{ secrets.SSH_KEY }}
+          key: ${{ secrets.PUBLIC_SSH_KEY }}
           timeout: 60s
           command_timeout: 15m
           script: |
@@ -38,7 +38,7 @@ jobs:
         with:
           host: ${{ secrets.PUBLIC_HOST }}
           username: ${{ secrets.SSH_USER }}
-          key: ${{ secrets.SSH_KEY }}
+          key: ${{ secrets.PUBLIC_SSH_KEY }}
           timeout: 60s
           command_timeout: 15m
           script: |
