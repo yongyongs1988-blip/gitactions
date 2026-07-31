@@ -6,20 +6,30 @@ jobs:
   deploy-backend:
     runs-on: ubuntu-latest
     steps:
-      - name: SSH into Private server via Public server (bastion) and redeploy
+      - name: SSH into Public server and redeploy backend on Private server
         uses: appleboy/ssh-action@v1.0.3
         with:
-          host: ${{ secrets.BACKEND_HOST }}
+          host: ${{ secrets.PUBLIC_HOST }}
           username: ${{ secrets.SSH_USER }}
           key: ${{ secrets.SSH_KEY }}
-          proxy_host: ${{ secrets.PUBLIC_HOST }}
-          proxy_username: ${{ secrets.SSH_USER }}
-          proxy_key: ${{ secrets.SSH_KEY }}
+          timeout: 60s
+          command_timeout: 15m
           script: |
+            set -e
+            PRIVATE_KEY="$HOME/gitactions/myapp.pem"
+            test -f "$PRIVATE_KEY"
+            chmod 600 "$PRIVATE_KEY"
+            ssh \
+              -o BatchMode=yes \
+              -o StrictHostKeyChecking=accept-new \
+              -i "$PRIVATE_KEY" \
+              "${{ secrets.SSH_USER }}@${{ secrets.BACKEND_HOST }}" <<'REMOTE'
+            set -e
             cd ~/gitactions
-            git pull
+            git pull --ff-only
             docker compose -f docker-compose.local.yml down
             docker compose -f docker-compose.local.yml up -d --build backend
+            REMOTE
   deploy-frontend:
     runs-on: ubuntu-latest
     steps:
@@ -29,9 +39,12 @@ jobs:
           host: ${{ secrets.PUBLIC_HOST }}
           username: ${{ secrets.SSH_USER }}
           key: ${{ secrets.SSH_KEY }}
+          timeout: 60s
+          command_timeout: 15m
           script: |
+            set -e
             cd ~/gitactions
-            git pull
+            git pull --ff-only
             docker rm -f mood-frontend 2>/dev/null || true
             docker build --no-cache \
               -t mood-frontend:latest \

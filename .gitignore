@@ -9,3 +9,6 @@ frontend/dist/
 
 # env
 .env
+
+# private keys
+*.pem
