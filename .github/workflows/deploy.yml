@@ -9,7 +9,7 @@ jobs:
       - name: SSH into Private server via Public server (bastion) and redeploy
         uses: appleboy/ssh-action@v1.0.3
         with:
-          host: ${{ secrets.PRIVATE_HOST }}
+          host: ${{ secrets.BACKEND_HOST }}
           username: ${{ secrets.SSH_USER }}
           key: ${{ secrets.SSH_KEY }}
           proxy_host: ${{ secrets.PUBLIC_HOST }}
